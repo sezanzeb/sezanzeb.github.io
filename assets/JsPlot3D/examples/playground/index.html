@@ -1,0 +1,265 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>JsPlot3D Playground</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="shortcut icon" href="icon.png">
+        <script src="https://threejs.org/build/three.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.18.0/math.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+
+        <div id="pageheader">
+            <img src="titlew.png">
+            <a id="github" href="https://github.com/sezanzeb/JsPlot3D" target="_blank"><img src="GitHub_Logo_White.png"></a>
+        </div>
+        <div id="main">
+            <div id="left">
+                <div id="threecanvas"></div>
+                <div id="Legend"></div>
+                <small>
+                    Use the scroll wheel to zoom in<br/>
+                    Hold [left click] to rotate the view<br/>
+                    Hold [right click] to move the view around<br/>
+                </small><br/>
+                <button onclick="plot.centerCamera()">center camera</button>
+                <div id="csvhead"></div>
+            </div>
+            <div id="right">
+                <p>
+                    <small>Hint: hover the settings to get tooltips.</small><br/>
+                    <span id="showtooltips" class="checked">Show tooltips:</label>
+                </p>
+                </br>
+                <div class="section">
+                    <h2>.csv File Upload</h2>
+                    <form id="csvform">
+                        <p>
+                            <input name="fileup" id="fileup" type="file"/>
+                            <label for="fileup" id="fileupbutton" class="button highlight">select a file</label>
+                            <label id="fileuplabel"></label>
+                            <button id="submitcsv" class="highlight" type="submit" style="display:none">plot</button>
+                            <span class="tooltip">The head of the .csv file will be displayed below the plot.<br/>
+                                You can download some example .csv files below this button.<br/>
+                                <small>No uploaded data will be transmitted to any server or stored.<br/>
+                                It is only processed using javascript in your browser.</small>
+                            </span>
+                        </p>
+                        <small>
+                            get example files:
+                            <a target="blank" href="https://raw.githubusercontent.com/sezanzeb/JsPlot3D/master/examples/csvFiles/math.csv">math.csv</a> |
+                            <a target="blank" href="https://raw.githubusercontent.com/sezanzeb/JsPlot3D/master/examples/csvFiles/wave.csv">wave.csv</a> |
+                            <a target="blank" href="https://raw.githubusercontent.com/sezanzeb/JsPlot3D/master/examples/csvFiles/spring.csv">spring.csv</a>
+                        </small><br/>
+                        <small>optional .csv realted options:</small>
+                        <p>
+                            <label>header:</label>
+                            <select id="header">
+                                <option value=""></option>
+                                <option value="true">true</option>
+                                <option value="false">false</option>
+                            </select>
+                            <span class="tooltip">A boolean value whether or not there are headers in the first row of the csv file. Will be automatically detected by default.</span>
+                        </p>
+                        <p>
+                            <label>csv separator:</label><input id="separator" type="text"/>
+                            <span class="tooltip">Separator used in the .csv file. e.g.: "," or ";" as in 1,2,3 or 1;2;3. Will be automatically detected by default.</span>
+                        </p>
+                        <p>
+                            <label>labeled:</label>
+                            <select id="labeled">
+                                <option value=""></option>
+                                <option value="true">true</option>
+                                <option value="false">false</option>
+                            </select>
+                            <span class="tooltip">True if colorCol contains labels (such as 0, 1, 2 or frog, cat, dog). This changes the way it is colored.
+                            Will color datapoints by their label (the column with colorCol as index). colorCol can be set below.</span>
+                        </p>
+                        <p>
+                            <label>active columns:</label>
+                            <span class="responsivebreak"></span>
+                            <input id="x1" class="indices" type="number" placeholder="x"/>
+                            <input id="x2" class="indices" type="number" placeholder="y"/>
+                            <input id="x3" class="indices" type="number" placeholder="z"/>
+                            <span class="tooltip">type in the column indices of your csv file that you would<br/>like to plot for x1 (x), x2 (y) and x3 (z). Default is 0, 1 and 2</span>
+                        </p>
+                    </form>
+                </div>
+                <div class="section">
+                    <h2>Formula</h2>
+                    <form id="formulaForm">
+                        <p>
+                            y(x1,x3) = <input id="formulaText" type="text" placeholder="mathematical term"/><button id="formulaButton" type="submit">calc</button>
+                            <span class="tooltip">Example: sin(x1*5) + sin(x3*5)</span>
+                        </p>
+                    </form>
+                </div>
+                <div class="section">
+                    <h2>Settings</h2>
+                    <form id="settings">
+                        <small>(options object)</small>
+                        <p>
+                            <label>mode:</label>
+                            <select id="mode">
+                                <option value=""></option>
+                                <option value="scatterplot">scatterplot</option>
+                                <option value="barchart">barchart</option>
+                                <option value="lineplot">lineplot</option>
+                                <option value="polygon">polygon</option>
+                            </select>
+                            <span class="tooltip">Changes the way the dataframe is displayed.</span>
+                        </p>
+                        <br/>
+                        <p>
+                            <label>colorCol:</label><input id="colorCol" type="number"/>
+                            <span class="responsivebreak"></span>
+                            <label>hueOffset:</label><input id="hueOffset" type="number" step="0.05"/>
+                            <span class="tooltip">
+                                <b>colorCol:</b> leave undefined or set to -1, if defaultColor should be applied. Otherwise the index of the csv column that contains color information.<br/>
+                                <b>hueOffset:</b> how much to rotate the hue of the labels. between 0 and 1. Default: 0
+                            </span>
+                        </p>
+                        <p>
+                            <label>filterColor:</label>
+                            <select id="filterColor">
+                                <option value=""></option>
+                                <option value="true">true</option>
+                                <option value="false">false</option>
+                            </select>
+                            <span class="tooltip">false: if the column with the index of the parameter "colorCol" contains numbers they are going to be treated
+                                as if it was a color. (converted to hexadecimal then and not filtered to a heatmap). Default true, which filters it to a heatmap.</span>
+                        </p>
+                        <p>
+                            <label>normalize:</label>
+                            <span class="responsivebreak"></span>
+                            <label>x</label>
+                            <select id="normalizeX1">
+                                <option value=""></option>
+                                <option value="true">true</option>
+                                <option value="false">false</option>
+                            </select>
+                            <span class="responsivebreak"></span>
+                            <label>y</label>
+                            <select id="normalizeX2">
+                                <option value=""></option>
+                                <option value="true">true</option>
+                                <option value="false">false</option>
+                            </select>
+                            <span class="responsivebreak"></span>
+                            <label>z</label>
+                            <select id="normalizeX3">
+                                <option value=""></option>
+                                <option value="true">true</option>
+                                <option value="false">false</option>
+                            </select>
+                            <span class="tooltip">If false, data will not be normalized. Datapoints with high values will be very far away then instead of fitting inside the plot.</span>
+                        </p>
+                        <p>
+                            <label>dataPointSize:</label><input id="dataPointSize" type="number" min="0" step="0.005"/>
+                            <span class="tooltip">How large the datapoint should be. Default: 0.04</span>
+                        </p>
+                        <p>
+                            <label>barchartPadding:</label><input id="barchartPadding" type="number" max="1" min="0" step="0.1"/>
+                            <span class="responsivebreak"></span>
+                            <label>barSizeThreshold:</label><input id="barSizeThreshold" type="number" max="1" min="0" step="0.05"/>
+                            <span class="tooltip">
+                                <b>barchartPadding:</b> How much space should there be between the bars? Example: 0.025<br/>
+                                <b>barSizeThreshold:</b> Smallest allowed y value for the bars. Smaller than that will be hidden. Between 0 and 1. 1 Hides all bars, 0 shows all. Default 0
+                            </span>
+                        </p>
+                        <p>
+                            <label>defaultColor:</label><input id="defaultColor" type="text" value="rgb(153,255,0)"/>
+                            <span class="tooltip">e.g.:0xffffff, #ff6600, rgb(1,0.5,0), hsl(0.7,0.6,0.3). Gets applied when either colorCol is -1, undefined or "" as fallback.</span>
+                        </p>
+                        <p>
+                            <label>title:</label><input id="title" type="text"/>
+                            <span class="tooltip">Title in the legend.</span>
+                        </p>
+                        <p>
+                            <label>x1title:</label><input id="x1title" class="short" type="text"/>
+                            <span class="responsivebreak"></span>
+                            <label>x2title:</label><input id="x2title" class="short" type="text"/>
+                            <span class="responsivebreak"></span>
+                            <label>x3title:</label><input id="x3title" class="short" type="text"/>
+                            <span class="tooltip">Titles of the axes.</span>
+                        </p>
+                        <p>
+                            <label>fraction:</label><input id="fraction" type="number" max="1" min="0" step="0.1"/>
+                            <span class="tooltip">Between 0 and 1, how much of the dataset should be plotted.</span>
+                        </p>
+                        <p>
+                            <label>keepOldPlot:</label>
+                            <select id="keepOldPlot">
+                                <option value=""></option>
+                                <option value="false">false</option>
+                                <option value="true">true</option>
+                            </select>
+                            <span class="tooltip">If true, old datapoints will stay where they are upon plot. don't remove the old datapoints/bars/etc when this is true and when a new plot is generated.</span>
+                        </p>
+                        <p>
+                            <label><b>apply changes / plot:</b></label>
+                            <button type="submit">click</button>
+                            <span class="tooltip"></span>
+                        </p>
+                    </form>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <small>(using setters):</small>
+                        <form id="setDimensions">
+                            <p>
+                                resolution:
+                                <span class="responsivebreak"></span>
+                                <label>x</label>
+                                <input type="number" id="xRes">
+                                <span class="responsivebreak"></span>
+                                <label>z</label>
+                                <input type="number" id="zRes">
+                                <span class="responsivebreak"></span>
+                                <button type="submit">set</button>
+                                <span class="tooltip">for example 20</span>
+                            </p>
+                            <p>
+                                length:
+                                <span class="responsivebreak"></span>
+                                <label>x</label>
+                                <input type="number" step="0.1" id="xLen">
+                                <span class="responsivebreak"></span>
+                                <label>y</label>
+                                <input type="number" step="0.1" id="yLen">
+                                <span class="responsivebreak"></span>
+                                <label>z</label>
+                                <input type="number" step="0.1" id="zLen">
+                                <span class="responsivebreak"></span>
+                                <button type="submit">set</button>
+                                <span class="tooltip">Default is 1x1x1</span>
+                            </p>
+                        </form>
+                        <form id="setBackgroundColor">
+                            <p>
+                                <label>background color:</label>
+                                <span class="responsivebreak"></span>
+                                <input type="text" id="backgroundColor">
+                                <button type="submit">set</button>
+                                <span class="tooltip">examples: 0xffffff, #ff6600, rgb(1,0.5,0), hsl(0.7,0.6,0.3)</span>
+                            </p>
+                        </form>
+                        <form id="setAxesColor">
+                            <p>
+                                <label>axes color:</label>
+                                <span class="responsivebreak"></span>
+                                <input type="text" id="axesColor">
+                                <button type="submit">set</button>
+                                <span class="tooltip">examples: 0xffffff, #ff6600, rgb(1,0.5,0), hsl(0.7,0.6,0.3)</span>
+                            </p>
+                        </form>
+                        <button type="submit" style="display:none;"></button>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+
+<script type="text/javascript" src="../../compiled/JsPlot3D.js"></script>
+<script src="script.js"></script>

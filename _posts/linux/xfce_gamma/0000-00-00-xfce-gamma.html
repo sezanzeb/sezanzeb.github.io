@@ -1,0 +1,97 @@
+---
+layout: post
+excerpt_separator: ""
+title: "How to set gamma in Xfce4 on login"
+date: "2019-12-25 01:00:00 -0000"
+---
+<script src="/assets/hippo/hippo-gallery.js"></script>
+
+<h3>Table of Contents</h3>
+<ul>
+    <li><a href="#Workaround">1. Workaround using a startup script</a></li>
+    <li><a href="#Pls">2. Why changes to Xfce for this would be nice</a></li>
+    <li><a href="#xorg.conf">3. How to set gamma in xorg.conf.</a></li>
+    <li><a href="#Sources">4. Sources</a></li>
+</ul>
+
+<h3 id='Workaround'>1. Workaround using a startup script</h3>
+
+	<p>Using the "Session and Startup" gui tool in Xfce4 you can go to "Application Autostart" and add something like</p>
+
+	{% highlight bash %}
+sh -c 'sleep 2 && xrandr --output HDMI-A-1 --gamma 0.96:0.95:0.99 && xrandr --output HDMI-A-0 --gamma 0.99:1.03:0.99'
+{% endhighlight %}
+
+	<p>Whenever the gamma seems to vanish, which happens for me when starting games, I have a keyboard shortcut that executes the same command.</p>
+
+<h3 id='Pls'>2. Why changes to Xfce for this would be nice</h3>
+
+	<p>Nobody seems to know how to set gamma in Xfce. I tried to investigate various options</p>
+
+	<p>Setting the gamma in xorg.conf.d (See below on how this can be done) doesn't help. It will set the gamma in lightdm, but not in Xfce</p>
+
+	<p>In <a href='#Sources'>[1]</a> it is said that colord should be used, but unfortunatelly no Information was provided how it can be achieved. Even more unfortunate, this was apparently never merged into an Xfce
+	release. I wish at least the option to set --gamma using xfconf was added, just like with --scale <a href='#Sources'>[4]</a>.</p>
+
+	<p>Maybe you are lucky to find a matching .icc profile for all your screens, for example in <a href='#Sources'>[6]</a>, then you can set it using the "Color Profiles" tool in Xfce.</p>
+
+	<p>If you have a colorimeter device like a Spyder5 you can use the "displaycal" package in Manjaro apparently. But I don't. I just want to set gamma values
+	manually. There is a tool called "Monica", but it just sets the gamma for all screens. Proprietary solutions once existed apparently <a href='#Sources'>[8]</a> but are no longer
+	available and alternativeto.net doesn't know alternatives to them.</p>
+
+	<p>If you want to write a software to create .icc profiles that just change gamma, then good luck with the icc format specification <a href='#Sources'>[5]</a>. The german wikipedia
+	says there is a icc "Matrix-Profile" type that can set gamma curves somehow though <a href='#Sources'>[7]</a>.</p>
+
+	<p>If you are wondering why one would like to guess gamma values that are most likely wrong anyways, it's because when there are multiple monitors in use
+	you maybe want them to have at least similar colors, even if they are not quite calibrated correctly. They greys of my GL2250 are rather blue compared to
+	my GW2480, so I want to make them meet in the middle.</p>
+
+	<p>There are indeed a few people that would be interested in changing their gamma permamently <a href='#Sources'>[1]</a><a href='#Sources'>[3]</a><a href='#Sources'>[9]</a> and to
+	conclude, I could not find a way to make xfce4 set a custom gamma except for the startup script. Unfortunatelly (some?) games reset the this startup gamma. Display profiles are apparently kept, so maybe
+	Xfce could be able to actually have this as a permament setting that doesn't just go away.</p>
+	
+	<p>I therefore opened a ticket in the xfce bugtracker for this <a href='#Sources'>[10]</a>. Hopefully this is a reasonable feature request!</p>
+
+<h3 id='xorg.conf'>3. How to set gamma in xorg.conf.d</h3>
+
+	<p>This unfortunatelly only applies to lightdm, Xfce seems to ignore this.</p>
+
+	<p>Those are the contents of a file that I created for this. It just has to end with ".conf", otherwise you can name it whatever you want.
+	/etc/X11/xorg.conf.d/calibration.conf</p>
+
+{% highlight bash %}
+
+Section "Monitor"
+    Identifier  "CustomNameFoo"
+    Gamma 0.99 1.03 0.99
+EndSection
+
+Section "Monitor"
+    Identifier  "YourOtherMadeUpDisplayName"
+    Gamma 0.96 0.95 0.99
+EndSection
+
+Section "Device"
+    Identifier "Device0"
+    Option "Monitor-HDMI-A-1" "CustomNameFoo"
+    Option "Monitor-HDMI-A-0" "YourOtherMadeUpDisplayName"
+EndSection
+
+{% endhighlight %}
+
+	Monitor-HDMI-A-1 is simply "Monitor-" + your monitor name when running "xrandr" in a console.
+
+<h3 id='Sources'>4. Sources</h3>
+
+<p>
+    [1] <a href='https://bugzilla.xfce.org/show_bug.cgi?id=10069' target='_blank'>https://bugzilla.xfce.org/show_bug.cgi?id=10069</a>, 25 Dec 2019<br/>
+    [2] <a href='https://www.freedesktop.org/software/colord/using.html' target='_blank'>https://www.freedesktop.org/software/colord/using.html</a>, 25 Dec 2019<br/>
+    [3] <a href='https://www.reddit.com/r/xfce/comments/91zf3j/xfcenvidia_how_to_set_gamma_on_screen_wakeup/' target='_blank'>https://www.reddit.com/r/xfce/comments/91zf3j/xfcenvidia_how_to_set_gamma_on_screen_wakeup/</a>, 25 Dec 2019<br/>
+    [4] <a href='https://git.xfce.org/xfce/xfce4-settings/commit/?id=6138979657fa7d9e4a9e66872db5050bd61a4a83' target='_blank'>https://git.xfce.org/xfce/xfce4-settings/commit/?id=6138979657fa7d9e4a9e66872db5050bd61a4a83</a>, 25 Dec 2019<br/>
+    [5] <a href='http://www.color.org/specification/ICC.2-2019.pdf' target='_blank'>http://www.color.org/specification/ICC.2-2019.pdf</a>, 25 Dec 2019<br/>
+    [6] <a href='https://www.tftcentral.co.uk/articles/icc_profiles.htm' target='_blank'>https://www.tftcentral.co.uk/articles/icc_profiles.htm</a>, 25 Dec 2019<br/>
+    [7] <a href='https://de.wikipedia.org/wiki/ICC-Profil' target='_blank'>https://de.wikipedia.org/wiki/ICC-Profil</a>, 25 Dec 2019<br/>
+    [8] <a href='https://www.dpreview.com/forums/thread/2835622' target='_blank'>https://www.dpreview.com/forums/thread/2835622</a>, 25 Dec 2019<br/>
+    [9] <a href='https://askubuntu.com/questions/439022/edit-color-profile-icc-to-change-gamma' target='_blank'>https://askubuntu.com/questions/439022/edit-color-profile-icc-to-change-gamma</a>, 25 Dec 2019<br/>
+    [10] <a href='https://bugzilla.xfce.org/show_bug.cgi?id=16303' target='_blank'>https://bugzilla.xfce.org/show_bug.cgi?id=16303</a><br/>
+</p>

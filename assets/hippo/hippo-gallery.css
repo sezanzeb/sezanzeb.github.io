@@ -1,0 +1,401 @@
+.hippo-zoomContent {
+	cursor: pointer;
+}
+
+.hippo-zoomContent-content {
+	display: none;
+}
+
+#hippo-close-lightbox-button {
+	cursor: pointer;
+    color: rgba(255,255,255,1);
+    position: fixed;
+    bottom: 2vh;
+    left: 3vh;
+    line-height: 15px;
+    z-index: 150;
+    transition: border-color 0.1s ease-in-out;
+	border-bottom: 1px solid transparent;
+	-webkit-transform: translateZ(0);  /* seems to improve performance for some people */
+}
+
+#hippo-close-lightbox-button:hover {
+	border-bottom: 1px solid rgba(255,255,255,1);
+}
+
+#hippo-loading {
+	margin: 0px auto;
+	vertical-align: middle;
+	text-align: center;
+	position: absolute;
+	top: 30%;
+	left: 0px;
+	right: 0px;
+	z-index: 110;
+	padding-top: 40px;
+	display: block;
+	opacity: 1;
+	pointer-events: none;
+	transition: opacity 1s ease-in;
+}
+
+#hippo-previousOff,
+#hippo-previous,
+#hippo-nextOff,
+#hippo-next,
+#hippo-caption,
+#hippo-responsive-close-button,
+#hippo-caption-responsive,
+#hippo-loading {
+	font-family: sans-serif;
+	color: white;
+}
+
+#hippo-img-height {
+	background: RGBa(255,255,255,0.2);
+	color: white;
+}
+
+#hippo-img {
+	margin: 0px auto;
+	/* padding-bottom: 4vw;*/
+	width: 100%;
+	z-index: 120;
+	position: relative;
+	display: block;
+}
+
+#hippo-img-height {
+	border: 0px solid #182535;
+	border-bottom-width: 15px;
+	overflow: hidden;
+	/* 200ms, just like the transition in handleNewContents */
+	transition: height 0.2s ease-in-out, opacity 0.1s ease-in-out;
+}
+
+#hippo-controls, #hippo-img-container {
+	margin: 0px auto;
+	box-sizing: border-box;
+	position: absolute;
+	border-radius: 2px;
+
+	/* acts like "min distance from left, right and bottom" and "center horicontaly"*/
+	/* top and bottom are also vw, so that the distance is the same on all screen edges*/
+	left: 2vw;
+	right: 2vw;
+	top: 2vw;
+
+	max-width: 850px;
+	width: 850px; /* IE needs a set width, so that this can be centered. This is going to be disabled using responsive rules later */
+
+	overflow-x: hidden;
+}
+
+#hippo-caption-responsive,
+#hippo-controls,
+#hippo-img-container {
+	background: #182535;
+}
+
+#hippo-img-container {
+	box-shadow: 0px 3px 6px RGBa(0,0,0,0.4);
+	max-height: 100%;
+	padding: 0px;
+	/* 60-1 to prevent the 1px transparent slit that appears sometimes*/
+	border-top: 0px solid #182535;
+	box-sizing: border-box;
+	/* should have high radius, to prevent overlapping antialiasing from the controls and the img-container*/
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+
+	/* it's hidden because the javascript will imitate the 'auto' setting*/
+	/* this is done because then the scrollbar can be displayed while the height is still transitioning*/
+	/* which makes it more smooth because the image won't jump in size because of a suddenly appearing scrollbar*/
+	overflow-y: hidden;
+}
+
+
+/* why not overflow-y: auto? Because this tool transitions the heights, which means that with the setting to auto
+ * the scrollbar might appear and disappear during the transition which results in ugly jumps */
+#hippo-img-container.hippo-tallImage {
+	overflow-y: scroll;
+}
+
+#hippo-img-container.hippo-heightTransitionHasFinished {
+	overflow-y: auto;
+}
+
+#hippo-controls {
+	/* height: 60px;*/ /* now configured in the .js file*/
+	padding: 10px 0px;
+	z-index: 130;
+	/* bottom: 0px;
+	left: 6vw;
+	right: 6vw;
+	max-width: 850px;*/
+	border-bottom-left-radius: 0px;
+	border-bottom-right-radius: 0px;
+
+	overflow: hidden;
+}
+
+#hippo-controls #hippo-previous,
+#hippo-controls #hippo-previousOff,
+#hippo-controls #hippo-next,
+#hippo-controls #hippo-nextOff,
+#hippo-responsive-close-button {
+	display: inline-block;
+	vertical-align: top;
+	margin-bottom: -10px;
+	top: -1px;
+	font-size: 15px;
+	line-height: 42px;
+	position: absolute;
+
+	padding: 10px 6%;
+	width: 40px;
+}
+
+
+#hippo-responsive-close-button {
+	display: none;
+	padding: 10px 0%;
+	width: 60px;
+	opacity: 0.3;
+	margin-left: -30px;
+}
+
+#hippo-caption {
+	position: absolute;
+	top: 2vw;
+	margin: 0px auto;
+	left: 0px;
+	right: 0px;
+	max-width: 500px;
+	width: 500px; /* IE needs a set width, so that this can be centered. This is going to be disabled using responsive rules later */
+	line-height: 60px;
+	pointer-events: none;
+	z-index: 140;
+}
+
+#hippo-controls #hippo-previous,
+#hippo-controls #hippo-previousOff {
+	left: 0px;
+	padding-left: 20px;
+}
+
+#hippo-controls #hippo-next,
+#hippo-controls #hippo-nextOff {
+	right: 0px;
+	padding-right: 20px;
+}
+
+#hippo-controls #hippo-previous:before,
+#hippo-controls #hippo-previousOff:before {
+	content: "back";
+}
+
+#hippo-controls #hippo-next:before,
+#hippo-controls #hippo-nextOff:before {
+	content: "next";
+}
+
+#hippo-previousOff,
+#hippo-nextOff {
+	cursor: default;
+}
+
+.hippo-opacity0 {
+	opacity: 0;
+}
+
+.hippo-hidden {
+	display: none !important;
+}
+
+.hippo-noopacity {
+	opacity: 0 !important;
+	transition: none !important;
+}
+
+*[zoom] {
+	cursor: pointer;
+	border-radius: 2px;
+	position: relative;
+}
+
+#hippo-lightbox-bg {
+	/* display: none;*/
+	position: fixed;
+	-webkit-transform: translateZ(0);
+	top: 0px;
+	left: 0px;
+	bottom: 0px;
+	background: RGBa(128,128,128,0.7);
+	height: 100%;
+	opacity: 0;
+	pointer-events: none;
+	cursor: pointer;
+	z-index: 100;
+	max-width: 100vw !important;
+	right: auto !important;
+	width: 100vw !important;
+	transition: opacity 0.2s ease-in-out;
+}
+
+#hippo-lightbox-bg.open {
+	opacity: 1;
+	display: block;
+	pointer-events: all;
+	max-height: 100vh;
+}
+
+#hippo-lightbox-bg:not(.loaded) #hippo-centering {
+	opacity: 0;
+	pointer-events: none;
+}
+
+#hippo-centering {
+	display: block;
+	vertical-align: middle;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	max-width: 100vw;
+	margin: 0px auto;
+	position: relative;
+	transition: opacity 0.2s ease-in-out;
+}
+
+#hippo-caption-responsive {
+	display: none;
+}
+
+#hippo-div {
+	cursor: auto;
+	padding: 2vw;
+	text-align: left;
+}
+
+#hippo-div:empty,
+#hippo-img[src=""] {
+	display: none;
+}
+
+@media screen and (max-width: 1030px) {
+	#hippo-caption {
+		display: none;
+	}
+
+	#hippo-caption-responsive {
+		display: block;
+		padding-top: 18px;
+		padding-bottom: 4px;
+		padding-left: 25px;
+	}
+}
+
+@media screen and (max-width: 850px) {
+
+	#hippo-controls {
+		left: 2vw;
+		right: 2vw;
+	}
+
+
+	/* used to prevent scrolling on mobiles during the popup which makes it better to use and
+	* it was meant to improve performance, which is really bad when scrolling on fixed divs
+	* only works on desktop though. I'll keep it here just in case it will work some day */
+	body.hippo-scrollingDisabled {
+		overflow: hidden; /* only do this on mobile, on desktops the content will jump because of the hiding scrollbar */
+	}
+
+	/**
+	 * on the mobile, there are no scrollbars that move content to the left because of their width 
+	 * so it's safe to always scroll when possible
+	 * It also makes turning the screen and keeping the functionality possible
+	 */
+	#hippo-img-container {
+		-webkit-overflow-scrolling: touch; /* seems to improve performance for some people */
+		overflow-y: auto;
+	}
+
+	/**
+	 * on the mobile the transitioning heights are not as critical as on the desktop, because I set
+	 * the popup window to exactly the size of the window which makes the transition in height obsolete
+	 * It also makes turning the screen and keeping the functionality possible
+	 */
+	#hippo-img-height {
+		height: auto !important; /* !important, because the script added the height property per inline style */
+	}
+}
+
+
+/**
+ * IE needs the width to be set for centering by position: absolute.
+ * But a set width will make the page less responsive, that means it has do be
+ * disabled again at some point
+ */
+@media screen and (max-width: 890px) {
+	#hippo-controls, #hippo-img-container {
+		width: auto;
+	}
+	
+	#hippo-caption {
+		width: auto;
+	}
+}
+
+/**
+ * Hide the close-button (which is basically just a dummy, you can click anywhere on the bg around the lightbox to close) 
+ * if the screen is so small that the text would intersect the lightbox
+ */
+@media screen and (max-width: 1030px) and (max-height: 775px) {
+	#hippo-close-lightbox-button {
+		display: none;
+	}
+
+	/**
+	 * Show an alternative close button
+	 */
+	 #hippo-responsive-close-button {
+		display: inline-block;
+	}
+}
+
+
+/**
+ * on larger screens than 775px width, don't extend the lightbox to the bottom of the screen
+ */
+@media screen and (min-height: 775px) {
+	#hippo-img-container img {
+		padding-bottom: 0px;
+	}
+
+	#hippo-img-container {
+		bottom: auto;
+		/* max-height: 80vh;*/
+	}
+}
+
+/**
+ * on small screens, extend the lightbox to the bottom of the screen
+ */
+@media screen and (max-height: 774px) {
+	#hippo-img-container {
+		max-height: none !important;
+		bottom: 2vw;
+	}
+}
+
+
+/**
+ * make text smaller if screen is very small. Because of the smaller text the close button has to be relocated a little bit
+ */
+@media screen and (max-width: 400px) {
+	#hippo-caption-responsive,
+	#hippo-controls #hippo-previous, #hippo-controls #hippo-previousOff, #hippo-controls #hippo-next, #hippo-controls #hippo-nextOff,
+	#hippo-responsive-close-button {
+		font-size: 13px;
+	}
+}

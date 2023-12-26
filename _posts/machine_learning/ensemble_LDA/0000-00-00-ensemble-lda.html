@@ -1,0 +1,30 @@
+---
+layout: post
+excerpt_separator: ""
+title: "Ensemble LDA"
+date: "2019-07-28 02:00:00 -0000"
+---
+<script src="/assets/hippo/hippo-gallery.js"></script>
+
+<p>LDA is a widely known model that finds topics in text. But, similar to k-means, you have to decide
+how many topics to look for. The stochastic nature of machine learning algorithms also causes the model
+to have instabilities, which results in topics being a mixture of multiple topics. This is the issue
+that led to the development of the “Ensemble LDA” model, which detects the stable topics in the text
+by using an ensemble of LDA topic models. The model detects and uses topic mixtures for stabilization.</p>
+
+<div class="center">
+    <img src="/assets/images/machine_learning/ensemble_LDA/triangle.png">
+</div>
+
+<h3>Python Package</h3>
+<p>It became part of gensim: <a href="https://github.com/RaRe-Technologies/gensim/pull/2980" target="_blank">
+https://github.com/RaRe-Technologies/gensim/pull/2980</a>.</p>
+
+<h3>Thesis Download</h3>
+<p><a href="/assets/downloads/EnsembleLDA.pdf" target="_blank">EnsembleLDA.pdf</a></p>
+
+<h3>Special Thanks</h3>
+<p>Thanks to <a href="https://github.com/aloosley" target="_blank">aloosley</a> for his support during the
+thesis and contributions to the PR.</p>
+<p>Also thanks to <a href="https://github.com/mpenkov">mpenkov</a> and <a href="https://github.com/piskvorky">radim</a>
+for their code reviews and continuous interest in the work.</p>

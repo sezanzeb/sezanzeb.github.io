@@ -1,0 +1,119 @@
+---
+---
+
+@import "minima";
+@import "/assets/hippo/hippo-gallery.css";
+
+.center
+{
+    text-align: center;
+}
+
+#law b {
+    margin-top: 16px;
+    display: inline-block;
+    text-indent: -14px;
+}
+#law p {
+    margin: 4px 0px;
+    text-indent: 15px;
+    text-align: justify;
+}
+
+.section {
+    margin-bottom:60px;
+}
+
+.heighthidden
+{
+    overflow: hidden;
+}
+
+.white .cell
+{
+    background: white;
+}
+
+#JsPlot3DImages .cell
+{
+    background: white;
+    vertical-align: middle;
+}
+
+.cellspacer
+{
+    width: 10px;
+    display: table-cell;
+}
+
+.table
+{
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+    margin: 30px 0px 20px 0px;
+}
+
+.table.styled
+{
+    padding: 10px 10px 0px;
+    box-sizing: border-box;
+    background: #eee;
+    border-radius: 2px;
+    background: RGBA(0, 0, 0, 0.03);
+    border: 1px dashed #ccc;
+}
+
+.cell
+{
+    width: 100%;
+    height: auto;
+    display: table-cell;
+    vertical-align: top;
+    border-radius: 2px;
+}
+
+img
+{
+    max-width: 100%;
+    margin-bottom: 10px;
+}
+
+.images
+{
+    margin: 70px 0px 0px 0px;
+    list-style: none;
+    padding: 0px;
+}
+
+.images img
+{
+    width: 100%;
+    display: block;
+}
+
+.images li
+{
+    position: relative;
+    width: 80%;
+    margin-bottom: 30px;
+    text-align: center;
+    margin: 0px auto;
+    border-bottom: 1px solid #eee; /*to fix the p-margin*/
+    margin-bottom: 40px;
+    overflow: hidden;
+}
+
+img[zoom]
+{
+    word-break: break-all;
+}
+
+/* code */
+
+inline {
+    color: #3a5b77;
+    background: RGBa(0,0,0,0.03);
+    padding: 0 6px;
+    border-radius: 2px;
+}

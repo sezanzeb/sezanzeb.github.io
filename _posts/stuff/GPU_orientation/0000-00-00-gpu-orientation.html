@@ -1,0 +1,88 @@
+---
+layout: post
+excerpt_separator: ""
+title: "Effect of the GPUs Orientation on Temperature"
+date: "2019-10-13 02:00:00 -0000"
+---
+<script src="/assets/hippo/hippo-gallery.js"></script>
+
+<p>I have seen one person argue that GPU temperatures in cases like the "BitFenix Prodigy M" or the "SilverStone Redline Series RL08" would suffer because heat rises and the GPU fans would try to push cold air against the rising hot air.</p>
+<p>Since I could not find a benchmark about the actual difference, here is one using the Unigine Heaven benchmark on Linux <a href="#Sources">[1]</a></p>
+
+<h3>Relevant hardware for both tests</h3>
+<ul>
+    <li>Sapphire RX 570 Pulse, dual fan</li>
+    <li>Be Quiet Pure Base 600</li>
+    <ul>
+        <li>2 fans on the top</li>
+        <li>1 on the back</li>
+        <li>2 on the front</li>
+        <li>all of them on low speeds</li>
+        <li>The solid top cover above the CPU is removed</li>
+    </ul>
+</ul>
+
+<p>The measured temperatures were the maximum temperatures I have encountered. However, it was quite stable actually. On average it was maybe 1°C lower. The tests were done by turning the complete computer upside down.</p>
+
+<h3>Results</h3>
+
+<img src="/assets/images/stuff/GPU_orientation/chart.png" />
+
+<p>Normal orientation</p>
+<ul>
+    <li>100% GPU fan 56°C</li>
+    <li>47.8% GPU fan 64°C</li>
+    <li>22.7% GPU fan 77°C</li>
+</ul>
+
+<p>Normal orientation, open sidepane, faster case fans</p>
+<ul>
+    <li>100% GPU fan 52°C</li>
+    <li>47.8% GPU fan 59°C</li>
+    <li>22.7% GPU fan 74°C</li>
+</ul>
+
+<p>Upside down computer</p>
+<ul>
+    <li>100% GPU fan 58°C</li>
+    <li>47.8% GPU fan 67°C</li>
+    <li>22.7% GPU fan 80°C</li>
+</ul>
+
+<p>Upside down computer, open sidepane, faster case fans</p>
+<ul>
+    <li>100% GPU fan 55°C</li>
+    <li>47.8% GPU fan 61°C</li>
+    <li>22.7% GPU fan 74°C</li>
+</ul>
+
+<h3>Conclusion</h3>
+
+<p>It seems to be correct that the temperatures are rising. The difference is around <b>~ 2.17°C</b> on average in this setup.</p>
+
+<p>
+    One has to consider that the cases mentioned, which have their GPU upside down, can get a fan mounted directly above the GPU to suck in room air and blow it towards it, which can help to improve the temperature quite a lot <a href="#Sources">[2]</a>
+    (at least for downwards oriented GPUs). This can also go wrong for unknown reasons <a href="#Sources">[3]</a>. Other configurations with additional exhaust fans have also been shown to reduce the GPU temp
+    <a href="#Sources">[4]</a>.
+</p>
+
+<p>
+    So there are a lot more factors to the GPU temp than merely the orientation. It could be that the cases with their mainboards upside down have actually beneficial characteristics for the GPU which remains to be validated due to other changes in the
+    case design.
+</p>
+
+<p>This test however shows, that <b>just turning your complete computer upside down will most likely not reduce your GPU temperature ¯\_(ツ)_/¯</b>.</p>
+
+<p>Temperatures were monitored using "radeon-profile" <a href="#Sources">[5]</a></p>
+
+<h3 id='Sources'>Sources</h3>
+
+[1] <a href="https://benchmark.unigine.com/heaven?lang=en" target="_blank">https://benchmark.unigine.com/heaven?lang=en</a><br/>
+[2] <a href="https://web.archive.org/web/20160403131500/https://www.dexgo.com/index.php?site=artikel/view.php&id=52&rubrik=grapevine&seite=1">
+    https://web.archive.org/web/20160403131500/https://www.dexgo.com/index.php?site=artikel/view.php&id=52&rubrik=grapevine&seite=1</a><br/>
+[3] <a href="https://forums.tomshardware.com/threads/gpu-temps-up-by-10%C2%B0c-after-installing-a-bottom-intake-fan-below-the-gpu.2631126/">
+    https://forums.tomshardware.com/threads/gpu-temps-up-by-10%C2%B0c-after-installing-a-bottom-intake-fan-below-the-gpu.2631126/</a><br/>
+[4] <a href="https://hardforum.com/threads/exhaust-fan-beneath-gpu-pics-test-results.1957164/">https://hardforum.com/threads/exhaust-fan-beneath-gpu-pics-test-results.1957164/</a><br/>
+[5] <a href="https://github.com/marazmista/radeon-profile">https://github.com/marazmista/radeon-profile</a>
+
+

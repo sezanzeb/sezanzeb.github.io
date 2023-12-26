@@ -1,0 +1,74 @@
+---
+layout: post
+excerpt_separator: ""
+title: "Hippo Gallery"
+date: "2017-09-12 19:22:00 -0000"
+---
+<script src="/assets/hippo/hippo-gallery.js"></script>
+<img alt="vanilla js" src="http://vanilla-js.com/assets/button.png">
+<p>This is a <b>responsive</b> gallery that opens in a lightbox and that will navigate between all pictures and HTML
+    content that share the same category tag. It <b>has no dependencies</b>. The images don't need to be in the same
+    container or next to each other, just make sure that they have the "zoom" and "category" tag set and that's it. When
+    the window's height it too slim, it will display a scrollbar next to the image. Info that says "loading... click to
+    close" will be displayed for images that take long to load or won't load at all. <b>IE9 support</b></p>
+<p>More Information and more examples can be found on the <a href="https://github.com/sezanzeb/Hippo">GitHub Page</a>
+</p>
+<h3>Live Demo</h3>
+<i>click on one of the pictures below</i>
+<div class="table">
+    <div class="cell"><img
+            alt="Aurora Borealis" category="livedemo" zoom="/assets/images/pic3.jpg"
+            src="/assets/images/preview3.jpeg" caption='Example 1'
+    /></div>
+    <div class="cellspacer"></div>
+    <div class="cell hippo-zoomContent" category="livedemo" caption='Example 2'/>
+    <img src="/assets/images/preview1.jpeg"/>
+    <div class="hippo-zoomContent-content">
+        <div class="table">
+            <div class="cell responsiveBlock">
+                <img
+                        alt="Stars under night sky" width="100%" style="border-radius:2px;"
+                        src="/assets/images/pic1.jpg"
+                >
+            </div>
+            <div class="cellspacer responsiveBlock"></div>
+            <div class="cellspacer responsiveBlock"></div>
+            <div class="cell responsiveBlock">
+                <h2>Consequatur</h2>
+                <p>explicabo accusamus quam reprehenderit. Deserunt dignissimos accusamus deleniti sequi exercitationem
+                    culpa veritatis ab. Explicabo voluptatem et nihil labore non expedita esse. Eaque aut totam dolor
+                    saepe esse qui sit. Et quis qui amet et quo quia tempore.</p>
+                <p>Est et non in cumque. Aut distinctio sint sapiente aut nihil. Iste assumenda est occaecati.</p>
+            </div>
+        </div>
+        <h2>Rerum Aperiam</h2>
+        <p>aut et accusamus vitae id est. Et iusto accusantium et commodi molestiae illo. Dolores natus culpa sapiente
+            et eos cupiditate necessitatibus omnis. Nam vel ipsum placeat. Molestiae repellendus alias molestiae aut
+            assumenda.</p>
+        <p>Maiores sint at placeat dolores asperiores qui ut minus. Magnam possimus quis voluptas blanditiis iste nemo.
+            Delectus odit repellendus odio. Dolor eum iure rerum sapiente.</p>
+        <p>Fuga ratione nisi eum omnis cupiditate. Autem accusamus assumenda possimus odio accusamus. Hic suscipit et
+            tempora dolor qui sed qui qui. Nostrum itaque doloremque culpa quidem vel dolorum. Consequatur omnis
+            consequatur odio qui voluptate iure optio esse.</p>
+    </div>
+</div>
+<div class="cellspacer"></div>
+<div class="cell"><img
+        category="livedemo" zoom="/assets/images/pic4.jpg" src="/assets/images/preview4.jpeg"
+        caption='Example 3'
+/></div>
+</div>
+<h3>Download/GitHub</h3>
+<p>
+    <a href="https://github.com/sezanzeb/Hippo">https://github.com/sezanzeb/Hippo</a>, where you can also find
+    more examples
+</p>
+<h3>Usage</h3>
+{% highlight bash %}
+
+<link rel="stylesheet" href="hippo-gallery.css" type="text/css">
+<script src="hippo-gallery.js"></script>
+<img category="category" zoom="pic1.jpg" src="preview1.jpeg" caption="caption1"/>
+<img category="category" zoom="pic2.jpg" src="preview2.jpeg" caption="caption2"/>
+<span caption="caption3" zoom="pic3.jpg">click here</span>
+{% endhighlight %}

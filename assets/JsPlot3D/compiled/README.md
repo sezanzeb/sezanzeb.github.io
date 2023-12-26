@@ -1,0 +1,1 @@
+Please go to MORE.md in the root directory for building information. (https://github.com/sezanzeb/JsPlot3D/blob/master/MORE.md)

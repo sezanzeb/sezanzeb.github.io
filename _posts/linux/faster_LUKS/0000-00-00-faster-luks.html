@@ -1,0 +1,276 @@
+---
+layout: post
+excerpt_separator: ""
+title: "Unlocking LUKS Faster and Enabling Password Retries"
+date: "2019-04-04 02:00:00 -0000"
+---
+<script src="/assets/hippo/hippo-gallery.js"></script>
+
+<p>This guide was written for a fresh install of a LUKS encrypted Majaro 18.0.4 (using GPT partitions). It also contains some general info about LUKS Headers and talks about partition sizes.</p>
+
+<p><b>Some of this stuff is a bit outdated. I didn't encounter the extra-key in the luks header anymore, and the esp flag is deprecated or something (you wont be able to select it). Instead,
+the installer will complain about the correct new flag missing, so there isn't anything to do wrong currently.</b> This guide still works for me otherwise when I set up a new manjaro
+installation. I should probably update the screenshots at some point.</p>
+
+<h3>Table of Contents</h3>
+<ul>
+    <li><a href="#Motivation">1. Motivation</a></li>
+    <li><a href="#Installation">2. Installation</a></li>
+    <ul>
+    <li><a href="#Installation">2.1 Partitioning and installer guide</a></li>
+    <li><a href="#PwTwiceFix">2.2 Fixing being asked for a password twice</a></li>
+    <li><a href="#IgnoreDisks">2.3 Disable being asked for other disks as well</a></li>
+    <li><a href="#KeyManagement">2.4 Removing unknown keys from the LUKS header</a></li>
+    </ul>
+    <li><a href="#Further">3. Further speedup and how to backup your LUKS header</a></li>
+    <li><a href="#Conclusion">4. Conclusion</a></li>
+    <li><a href="#Sources">5. Sources</a></li>
+</ul>
+
+<h3 id='Motivation'>1. Motivation</h3>
+
+	<p>When using full disk encryption with LUKS, GRUB in 'boot/efi' tries to unlock your '/boot' files,
+	which are in '/'. This is incredibly slow, as no Kernel from /boot is loaded at that time, so there
+	are no optimizations. Furthermore, upon a single failed password attempt, you are thrown into the
+	GRUB rescue mode which is ridiculous and not user friendly at all.</p>
+
+	<p>With these changes, GRUB in 'boot/efi' loads the unencrypted '/boot' partition. Initrd then tries
+	to unlock the LUKS encrypted '/' root partition <a href='#Sources'>[6]</a>, which is about 4.3 times faster (was ~13 secs,
+	now it takes ~3 secs until the unlocking prompt closes), probably due to optimizations found in the
+	kernel. Furthermore it's more user friendly because of the ability to reenter the password in initrd
+	if it was wrong.</p>
+
+<h3 id='Installation'>2. Installation</h3>
+
+	<h4>2.1 Partitioning and installer guide</h4>
+
+		<p>Custom partitioning has to be done during the install process. In my setup, all of them are installed
+		on an internal SSD (including /tmp, /swap and /var, since relieability problems with SSDs are not that
+		severe as in the past anymore <a href='#Sources'>[14]</a>), whereas I use an internal HDD to store personal files, which doesn't
+		have to be formatted for future reinstalls.</p>
+
+		<p>A live Manjaro stick can be created using Etcher <a href='#Sources'>[7]</a> and the iso available on the Manjaro website <a href='#Sources'>[8]</a>. Boot to it
+		and use the tool that can be found on the desktop to start the installation process. Follow the instructions, at some point you should be at the "Partitions" step,
+		as can be seen in the screenshots below.</p>
+		
+		<p>First select the right storage device at the top. Then select "Manual partitioning". In the next step, create a new GPT partition table.</p>
+
+        <div class='table'>
+            <div class='cell'><img src='/assets/images/linux/faster_LUKS/1.png' category='global' zoom='/assets/images/linux/faster_LUKS/1.png' caption='1'></div>
+            <div clasS='cellspacer'></div>
+            <div class='cell'><img src='/assets/images/linux/faster_LUKS/2.png' category='global' zoom='/assets/images/linux/faster_LUKS/2.png' caption='2'></div>
+            <div clasS='cellspacer'></div>
+            <div class='cell'><img src='/assets/images/linux/faster_LUKS/3.png' category='global' zoom='/assets/images/linux/faster_LUKS/3.png' caption='3'></div>
+            <div clasS='cellspacer'></div>
+            <div class='cell'><img src='/assets/images/linux/faster_LUKS/4.png' category='global' zoom='/assets/images/linux/faster_LUKS/4.png' caption='4'></div>
+        </div>
+
+		<p>The following sizes are recommended or default depending on the source of the information and distribution:</p>
+
+		<p>/boot:</p>
+		<ul>
+			<li>250MB - 1000MB <a href='#Sources'>[1]</a></li>
+			<li>1024 MiB in RHEL 7.3 <a href='#Sources'>[5]</a></li>
+		</ul>
+
+		<p>/boot/efi:</p>
+		<ul>
+			<li>100MB - 250MB <a href='#Sources'>[1]</a></li>
+			<li>200 - 512 MiB <a href='#Sources'>[3]</a></li>
+			<li>"550 MiB is recommended" <a href='#Sources'>[4]</a></li>
+			<li>"The UEFI System Partition should be at least 260 MiB (273 MB)" <a href='#Sources'>[2]</a></li>
+		</ul>
+        
+		<p>Note, that you might want a larger /boot partition if you have multiple kernels installed (e.g. in fedora
+		or when installing another kernel in the Manjaro settings manager). So I went for 1000MiB just to make sure.
+		For efi, I went with 550 MiB. Those are the maximum recommendations and so I really wouldn't go larger than that.</p>
+		
+		<p>The following screenshots will guide you through creating the right partitions. Make sure the /boot/efi is a fat32
+		filesystem and has the esp flag.</p>
+		
+        <div class='table'>
+            <div class='cell'><img src='/assets/images/linux/faster_LUKS/5.png' category='global' zoom='/assets/images/linux/faster_LUKS/5.png' caption='5'></div>
+            <div clasS='cellspacer'></div>
+            <div class='cell'><img src='/assets/images/linux/faster_LUKS/6.png' category='global' zoom='/assets/images/linux/faster_LUKS/6.png' caption='6'></div>
+            <div clasS='cellspacer'></div>
+            <div class='cell'><img src='/assets/images/linux/faster_LUKS/7.png' category='global' zoom='/assets/images/linux/faster_LUKS/7.png' caption='7'></div>
+            <div clasS='cellspacer'></div>
+            <div class='cell'><img src='/assets/images/linux/faster_LUKS/8.png' category='global' zoom='/assets/images/linux/faster_LUKS/8.png' caption='8'></div>
+        </div>
+
+		<p>/boot and /boot/efi are not allowed to be encrypted for this to work. An unencrypted /boot partition can be a
+		security concern since your Kernel could be altered. But if you are using encryption because you want to
+		make sure your personal files are not exposed when your computer gets lost, it's totally fine to leave it unencrypted.</p>
+
+		<p>Since you are already being asked for the LUKS password at boot time, you might want to skip having to enter
+		another password to log in automatically afterwards. Once you lock and unlock your running
+		computer, you will have to enter your user password despite this option.</p>
+		
+        <div class='table'>
+            <div class='cell'><img src='/assets/images/linux/faster_LUKS/9.png' category='global' zoom='/assets/images/linux/faster_LUKS/9.png' caption='9'></div>
+            <div clasS='cellspacer'></div>
+            <div class='cell'><img src='/assets/images/linux/faster_LUKS/10.png' category='global' zoom='/assets/images/linux/faster_LUKS/10.png' caption='10'></div>
+            <div clasS='cellspacer'></div>
+            <div class='cell'><img src='/assets/images/linux/faster_LUKS/11.png' category='global' zoom='/assets/images/linux/faster_LUKS/11.png' caption='11'></div>
+            <div clasS='cellspacer'></div>
+            <div class='cell'><img src='/assets/images/linux/faster_LUKS/12.png' category='global' zoom='/assets/images/linux/faster_LUKS/12.png' caption='12'></div>
+        </div>
+
+        Further follow the installation instructions as shown in the pictures until you are done.
+
+	<h4 id='PwTwiceFix'>2.2 Fixing being asked for a password twice</h4>
+
+		<p>At the time writing this, I was asked for a password twice even though /boot was unencrypted:</p>
+
+        <div class='table'>
+            <div class='cell'><img src='/assets/images/linux/faster_LUKS/prompt1.jpg' category='global' zoom='/assets/images/linux/faster_LUKS/prompt1.jpg' caption='previous decryption prompt'></div>
+            <div clasS='cellspacer'></div>
+            <div class='cell'><img src='/assets/images/linux/faster_LUKS/prompt2.jpg' category='global' zoom='/assets/images/linux/faster_LUKS/prompt2.jpg' caption='better decryption prompt'></div>
+        </div>
+
+		<p>It was even possible to enter a wrong password at the first prompt, which would still get me to the initrd
+		password prompt. To fix this, GRUBs configuration has to be changed. "Removing GRUB_ENABLE_CRYPTODISK=y from
+		/etc/default/grub did the trick." <a href='#Sources'>[13]</a>. In my installation this line appeared twice in /etc/default/grub.
+		One commented, and one at the bottom uncommented. Both lines have to be either commented using an '#' in the
+		beginning or removed. You can edit this file using the following command in your Terminal:</p>
+
+		{% highlight bash %}
+sudo mousepad /etc/default/grub
+{% endhighlight %}
+
+		<p>Then run:</p>
+
+		{% highlight bash %}
+sudo update-grub
+{% endhighlight %}
+
+		<p>So that the changes actually take effect. This command always has to be used when making changes to the GRUB configuration file.</p>
+
+		<p>Now restart to see if it works. You should be asked for a password only once until your desktop flashes up.</p>
+
+	<h4 id='IgnoreDisks'>2.3 Disable being asked for other disks as well</h4>
+	
+	    <p>The initrd prompts can be controlled with the /etc/crypttab file. A line that triggers the prompt at the startup looks like this:</p>
+	    
+		{% highlight bash %}
+luks-0a2b4c6d-8e0f-a3b5-c7d9-e1f3a5b7c9d1 UUID=0a2b4c6d-8e0f-a3b5-c7d9-e1f3a5b7c9d1 /crypto_keyfile.bin luks
+{% endhighlight %}
+		
+		<p>On one occasion multiple of those lines were present for me, presumably because other LUKS encrypted devices were connected during the
+		installation, so I was being asked at boot time to unlock multiple drives that I really don't care about during the startup. You can use a tool
+		like the gnome-disk-utility from the Arch repos to figure out the UUID of the disk you actually want to unlock and comment out all other
+		lines in crypttab that don't match that UUID. You need to have sudo rights to edit this file.</p>
+	
+	<h4 id='KeyManagement'>2.3 Removing unknown keys from the LUKS header</h4>
+	
+	    <p>For some strange reason there are always two keys in my LUKS header after the installation, and I don't even know the password for the second one.
+	    To check if this is also the case for your installation, you can list your keys of any of your drives (in this example /dev/sda3) using the following command:</p>
+	    
+		{% highlight bash %}
+sudo cryptsetup luksDump /dev/sda3
+{% endhighlight %}
+		
+		<p>You should see a list of "Key Slot X" entries. If there are more than you expect, you can go ahead and try to delete any of them.
+		cryptsetup will only allow you to delete any slot as long as you are able to unlock at least one remaining slot with the password you know.</p>
+		
+		<p>So I just try to delete the second slot:</p>
+        
+	    {% highlight bash %}
+[user@pc ~]$ sudo cryptsetup luksKillSlot /dev/sda3 1
+Enter any remaining passphrase: 
+[user@pc ~]$
+{% endhighlight %}
+
+        <p>Which works out for me with the password I used during the manjaro installation. You can also try to see which one you are able to access
+        by trying to change the password of the given slot, it will also ask you to unlock it first:</p>
+        
+		{% highlight bash %}
+[user@pc ~]$ sudo cryptsetup luksChangeKey /dev/sda3 -S 1
+Enter passphrase to be changed: 
+No key available with this passphrase.
+[user@pc ~]$
+{% endhighlight %}
+    
+<h3 id='Further'>3. Further unlocking speedup and how to backup your LUKS header</h3>
+
+	<p>In order to further speed unlocking up from 2 to 1 second, the iter-time of the luks header can be decreased,
+	however, this also makes bruteforce attacks easier <a href='#Sources'>[10]</a>, especially when your cpu used for encryption is slow <a href='#Sources'>[11]</a>.
+	The default value as of Cryptsetup 2.0.6 is 2000ms <a href='#Sources'>[12]</a>. Also, you might want to use sha512 instead of sha1 for
+	luks-header encryption.</p>
+
+	<p><a href='#Sources'>[9]</a> states, that an iterationcount (affected by --iter-time) of 26033 is 'lousy'. It is then
+	recommended to use 5000ms, which results in 1578295 iterations. An i5 3470 can do around 1517476 iterations in 2000ms.</p>
+
+	<p>In your live USB environment, find out the partition that contains your encrypted root ('/') in GParted
+	(the root password of the live environment is 'manjaro'), can be seen on the next image.</p>
+	
+    <div class='table'>
+        <div class='cell'><img src='/assets/images/linux/faster_LUKS/15.png' zoom='/assets/images/linux/faster_LUKS/15.png'></div>
+        <div clasS='cellspacer'></div>
+        <div class='cell'></div>
+        <div class='cell'></div>
+        <div clasS='cellspacer'></div>
+    </div>
+
+	<p>Then run (also in the live image) <b>with your correct partition device instead of /dev/sda3</b>:</p>
+
+	{% highlight bash %}
+sudo cryptsetup luksHeaderBackup /dev/sda3 --header-backup-file ~/HeaderBackup
+{% endhighlight %}
+
+	<p>so that you can roll back your changes in case you break your partition. Note that this file
+	is lost when you shutdown your live environment. You should store it on some removable drive
+	for example. If you break your LUKS header, you can recover your files only as long as the
+	device is still opened (if it is at all in your live environment), but after shutting down all
+	your files are gone <a href='#Sources'>[15]</a>. More information, e.g. how to restore the header, is available here: <a href='#Sources'>[16]</a>.
+	Your header backup is not a security issue, as it only contains encrypted information, that
+	is meant to be decrypted with your personal password. Don't store the header backup on the same
+	drive that uses the very same header, because if your drive failes your backup is gone too otherwise.</p>
+
+    <p>Run this command to backup your header:</p>
+    
+	{% highlight bash %}
+sudo cryptsetup-reencrypt --keep-key --hash sha512 --iter-time 1000 /dev/sda3 #<a href='#Sources'>[9]</a>
+{% endhighlight %}
+
+	<p>In the luksDump output, it can be seen that the iteration count is lower now. 989222 in my case.</p>
+
+<h3 id='Conclusion'>4. Conclusion</h3>
+
+	<p>I think the option to leave /boot unencrypted should be available in the Manjaro installer,
+	since it has quite some benefits. It would also be nice to add some preconfigured partitions,
+	like a button that adds the ESP partition using a recommended default size.</p>
+
+	<p>That the initrd password prompt lets you reenter the password for unlocking your drive after
+	failed attempts seems to be quite unknown in the internet. Usually it is suggested to either
+	use cryptomount in the rescue mode, to hard reset the computer or to do a soft reset using
+	ctrl + alt + del.</p>
+
+	<p>If you would like to have something improved or mentioned in this guide, don't hesitate to write
+	me a message: <a href='https://hip70890b.de/about.html#contact'>https://hip70890b.de/about.html#contact</a></p>
+	
+<h3 id='Sources'>5. Sources</h3>
+
+<p>
+[1] <a href='https://help.ubuntu.com/community/DiskSpace' target='_blank'>https://help.ubuntu.com/community/DiskSpace</a><br/>
+[2] <a href='https://www.ctrl.blog/entry/esp-size-guide' target='_blank'>https://www.ctrl.blog/entry/esp-size-guide</a><br/>
+[3] <a href='https://wiki.Manjaro.org/index.php?title=UEFI_-_Install_Guide' target='_blank'>https://wiki.Manjaro.org/index.php?title=UEFI_-_Install_Guide</a><br/>
+[4] <a href='https://wiki.archlinux.org/index.php/EFI_system_partition' target='_blank'>https://wiki.archlinux.org/index.php/EFI_system_partition</a><br/>
+[5] <a href='https://serverfault.com/a/894893' target='_blank'>https://serverfault.com/a/894893</a><br/>
+[6] <a href='https://askubuntu.com/a/1106140' target='_blank'>https://askubuntu.com/a/1106140</a><br/>
+[7] <a href='https://www.balena.io/etcher/' target='_blank'>https://www.balena.io/etcher/</a><br/>
+[8] <a href='https://Manjaro.org/download/' target='_blank'>https://Manjaro.org/download/</a><br/>
+[9] <a href='https://unix.stackexchange.com/a/178722' target='_blank'>https://unix.stackexchange.com/a/178722</a><br/>
+[10] <a href='https://bbs.archlinux.org/viewtopic.php?id=221603' target='_blank'>https://bbs.archlinux.org/viewtopic.php?id=221603</a><br/>
+[11] <a href='https://gitlab.com/cryptsetup/cryptsetup/wikis/FrequentlyAskedQuestions' target='_blank'>https://gitlab.com/cryptsetup/cryptsetup/wikis/FrequentlyAskedQuestions</a><br/>
+[12] <a href='https://wiki.archlinux.org/index.php/dm-crypt/Device_encryption' target='_blank'>https://wiki.archlinux.org/index.php/dm-crypt/Device_encryption</a><br/>
+[13] <a href='https://forum.Manjaro.org/t/asked-twice-on-boot-for-luks-password/31267' target='_blank'>https://forum.Manjaro.org/t/asked-twice-on-boot-for-luks-password/31267</a><br/>
+[14] <a href='https://unix.stackexchange.com/a/86299' target='_blank'>https://unix.stackexchange.com/a/86299</a><br/>
+[15] <a href='https://access.redhat.com/solutions/1543373' target='_blank'>https://access.redhat.com/solutions/1543373</a><br/>
+[16] <a href='https://wiki.archlinux.org/index.php/dm-crypt/Device_encryption' target='_blank'>https://wiki.archlinux.org/index.php/dm-crypt/Device_encryption</a><br/>
+</p>
+
+
+
+
+

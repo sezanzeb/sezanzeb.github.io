@@ -1,0 +1,453 @@
+body {
+    background: #19212f;
+    color:#ddd;
+    margin:0px;
+    margin-top:80px;
+    font-family:sans-serif;
+    font-size:15px;
+}
+
+h1,h2 {
+    font-family: sans-serif;
+}
+
+.tooltip {
+    pointer-events: none;
+    position: absolute;
+    background: RGBa(0, 0, 0, 0.7);
+    padding: 5px 10px;
+    border-radius: 2px;
+    margin: 5px 0px;
+    border: 2px solid #ad125b;
+    box-shadow: 0px 1px 5px black;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    display: block;
+    font-size: 13px;
+    line-height: normal;
+    margin-right: 23px;
+}
+
+.tooltip:empty, .tooltipsdisabled .tooltip {
+    display: none;
+}
+
+p:hover > span.tooltip {
+    opacity: 1;
+}
+
+.jsP3D_legend {
+    margin: 0px;
+    padding: 15px 25px;
+    border-radius: 0px 0px 5px 5px;
+    max-height: 550px;
+    overflow: auto;
+    background: #38424e;
+    border-top: 1px solid rgba(0,0,0,0.4);
+}
+
+.jsP3D_legend h1 {
+    font-family: "RetroscapeRegular";
+    margin: 0px 0px 5px;
+    font-size: 20px;
+    border-bottom: 1px solid white;
+    padding: 5px 0px 7px;
+    color: #fff;
+    font-family:sans-serif;
+    font-size:18px;
+}
+
+.jsP3D_legend td {
+    font-family:sans-serif;
+    font-size:14px;
+}
+
+.jsP3D_labelColor {
+    width: 10px;
+    height: 10px;
+    display: block;
+    border-radius: 100%;
+    margin-right: 10px;
+}
+
+.jsP3D_axesTitleLegend {
+    margin-top: 4px;
+}
+
+.jsP3D_legend:empty {
+    display: none;
+}
+
+#defaultColor {
+    width:130px;
+}
+
+#pageheader {
+    background:black;
+    padding:10px 20px;
+    height:30px;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    z-index:100;
+}
+
+#pageheader h1 {
+    margin: 0px;
+    position: relative;
+    bottom: 7px;
+    margin-left: 10px;
+    font-size:22px;
+}
+
+#pageheader h1:nth-child(3) {
+    font-family: sans-serif;
+}
+
+#main h2:not(:first-child) {
+    margin-top:60px;
+}
+
+a {
+    color:white;
+    text-decoration:none;
+}
+
+#github {
+    position:absolute;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    border-left: 1px solid #19212f;
+    padding:0px 30px;
+}
+
+#github img {
+    height: 25px;
+    margin-top:12px;
+}
+
+#pageheader * {
+    display:inline;
+    max-height:100%;
+}
+
+#left, #right {
+    display: table-cell;
+    vertical-align: top;
+    padding:0px 20px;
+}
+
+#main {
+    margin:30px auto;
+    display:table;
+    position:relative;
+}
+
+#csvhead table {
+    width: 100%;
+    opacity: 0.6;
+    font-size: 12px;
+    letter-spacing: -0.2;
+}
+
+#csvhead td {
+    overflow: hidden;
+    padding: 2px 5px;
+}
+
+#left {
+    text-align:center;
+    /*width:740px;*/
+}
+
+#left small {
+    display: inline-block;
+    margin: 10px;
+}
+
+#right, #threecanvas, #csvhead {
+    min-width:600px;
+    width:600px;
+}
+
+#threecanvas, #csvhead {
+    height:600px;
+    margin:0px auto;
+    display:block;
+    border-radius: 5px 5px 0px 0px;
+    overflow: hidden;
+    text-align:left;
+}
+
+.section {
+    margin-bottom:60px;
+}
+
+#csvhead {
+    height: auto;
+    overflow-x: auto;
+    margin-top: 30px;
+    background: #293542;
+    padding: 15px;
+    box-sizing: border-box;
+    border-radius: 5px;
+}
+
+#csvhead:empty {
+    background: transparent;
+}
+
+#fixed {
+    position:fixed;
+}
+
+#threecanvas:focus {
+    outline: none;
+}
+
+#formulaText {
+    width: 350px;
+    margin-right: 10px;
+}
+
+input:not([type=checkbox]), button, select, .button, #showtooltips:after {
+    color: white;
+    background: rgb(31, 41, 60);
+    padding: 5px 15px;
+    border-radius: 2px;
+    box-shadow:0px 1px 0px black;
+    border:2px solid transparent;
+    height:35px;
+    box-sizing:border-box;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+button, .button {
+    color:#ccc;
+}
+
+#showtooltips {
+    height: 23px;
+    cursor: pointer;
+    color:#999;
+    font-size: smaller;
+}
+
+#showtooltips:after {
+    content: "no";
+    width: 55px;
+    display: inline-block;
+    position: relative;
+    text-align: center;
+    cursor: pointer;
+    color: #d02f59;
+    height: auto;
+    padding: 1px 0px 2px 0px;
+    margin: 5px 0px;
+    font-size: smaller;
+    top: -1px;
+}
+
+#showtooltips.checked:after {
+    content: "yes";
+    color: white;
+}
+
+*:focus {
+    outline:0px;
+}
+
+.highlight {
+    /*border-color: rgba(181, 218, 255, 0.09);*/
+    font-weight: bold;
+    font-family: sans-serif;
+    font-size: 13px;
+    line-height: 20px;
+    color:white;
+    border: 2px solid rgba(51, 153, 202, 0.35);
+}
+
+.button:hover, button:hover, select:hover, input:focus {
+    border: 2px solid #3399ca;
+    cursor: pointer;
+}
+
+.button, button, select, input {
+    margin-left: 0px;
+    display: inline-block;
+    transition: border-color 0.1s linear;
+}
+
+#right table {
+    table-layout:fixed;
+    width:100%;
+}
+
+.short {
+    width:100px;
+}
+
+small, small a {
+    color: #636871;
+}
+
+small a {
+    transition: color 0.2s ease-in-out;
+}
+
+small a:hover {
+    color: #DDDDDD;
+}
+
+small p {
+    margin:0;
+}
+
+#fileup {
+    padding: 5px 15px;
+    position:relative;
+    width:100px;
+    display:none;
+}
+
+input[type=number] {
+    width:70px;
+    padding-right:5px;
+    text-align: left;
+    margin-right:6px;
+    padding-left: 10px;
+}
+
+#dataPointSize {
+    width:85px;
+}
+
+#sep, #submitcsv {
+    width:100px;
+    text-align: center;
+}
+
+p, form {
+    margin: 7px 0px;
+}
+
+h2 {
+    padding-top: 7px;
+    margin: 0px;
+}
+
+label {
+    margin-right:10px;
+    color:#999;
+}
+
+#footer {
+    width: 100%;
+    background: black;
+    box-sizing: border-box;
+    opacity: 0.5;
+    padding: 15px 20px;
+}
+
+@media screen and (max-width: 1300px) {
+    #csvhead {
+        max-height:300px;
+        overflow-y:auto;
+        margin-bottom:50px;
+    }
+
+    #left, #right {
+        display: block;
+    }
+}
+
+
+.responsivebreak {
+    display:none;
+}
+
+@media screen and (max-width: 700px) {
+
+    #left, #right {
+        /*padding:0px;*/
+    }
+
+    canvas, #threecanvas {
+        text-align: center;
+        width: 100% !important;
+        height: 80vw !important;
+    }
+
+    #right, #threecanvas, #csvhead {
+        min-width: 0px;
+        width: auto;
+        display:block;
+        margin: 0px;
+    }
+
+    #csvhead:empty {
+        padding: 0px;
+    }
+
+    #csvhead {
+        margin: 20px 0px 50px;
+        background: rgba(0, 0, 0, 0.21);
+        padding: 15px;
+        border-radius: 0px;
+    }
+
+    .jsP3D_legend {
+        position: static;
+        border: 0px;
+        background: #293542;
+        border-radius: 0px;
+        margin: 0px auto;
+        padding: 10px 20px;
+    }
+
+    #formulaText {
+        width: auto;
+    }
+
+    #csvhead table {
+    }
+
+    #threecanvas {
+        border-radius: 0px;
+    }
+
+    #right p {
+        border-top: 1px solid rgba(0, 0, 0, 0.3);
+        padding-top: 5px;
+        padding-bottom: 10px;
+    }
+
+    #right p {
+        line-height: 44px;
+    }
+
+    .responsivebreak {
+        display:block;
+    }
+
+    small {
+        display:block;
+    }
+
+    button {
+        margin: 6px 0px;
+    }
+
+    #main {
+        width: 100%;
+        display:block;
+    }
+    
+    input, select {
+        max-width: 50vw;
+    }
+}

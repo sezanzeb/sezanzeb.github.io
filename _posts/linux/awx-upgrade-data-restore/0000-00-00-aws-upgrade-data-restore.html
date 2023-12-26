@@ -1,0 +1,127 @@
+---
+layout: post
+excerpt_separator: ""
+title: "How we restored our data in AWX after upgrading"
+date: "2021-06-16 16:01:03 -000"
+---
+
+<p>This is what I did after upgrading from version 2 to version 17 and all the configuration
+    was lost. Paths in this tutorial might be different for you, depending on your configuration.
+    This might also be a bit sketchy, but hopefully it can give you some ideas on how to continue
+    to fix your installation.
+</p>
+<p>Based on what I have read: You need to have the same secrets configured in your old and new inventory when
+    running the installation playbook, otherwise the encrypted credentials cannot be opened.</p>
+<h3>Basic procedure</h3>
+<ul>
+    <li>old database A (with your data) in directory a</li>
+    <li>new database B (empty) in directory b</li>
+</ul>
+<ol>
+    <li>dump A to some path</li>
+    <li>rename B to free its name for the next step</li>
+    <li>restore A with the old name of B in location b</li>
+    <li>awx-manage migrate in the awx_task docker container</li>
+</ol>
+<h3>Figuring out where the data is and verifying that it is not migrated</h3>
+{% highlight bash %}
+sudo docker container ls
+{% endhighlight %}
+<p>lists your containers. There were two postgres containers: <inline>postgres</inline> and <inline>awx_postgres</inline>.
+    The
+    displayed date made it clear that <inline>postgres</inline> is from our original installation.</p>
+{% highlight bash %}
+sudo docker exec -it awx_postgres bash  # entering the docker container
+psql -U awx
+\list
+{% endhighlight %}
+<p>There is the "awx" database. You can for example find users via</p>
+<pre><code>SELECT * FROM auth_user;</code></pre>
+<p>which was empty for me except for the admin.</p>
+<p>From an older version there is also a container called "postgres".
+    Doing the same thing in there yields all of my old data. But
+    that database is outdated and some columns are therefore missing, like
+    <inline>managed_by_tower</inline> in <inline>main_credentials</inline>. If you only have an <inline>awx_postgres</inline>
+    docker container your data is possibly still in some folder, it's just that
+    no container is configured to be able to access that (outdated) data.
+</p>
+<p>After looking around, I found a Migration to add the column of the example:
+    <a href="https://github.com/ansible/awx/blob/devel/awx/main/migrations/0120_galaxy_credentials.py">https://github.com/ansible/awx/blob/devel/awx/main/migrations/0120_galaxy_credentials.py</a>,
+    so I wanted to now figure out a way to run this and all other migrations.
+</p>
+<p>Going back to the host machine (out of the docker bash) via Ctrl + D, you
+    should check the path in your inventory file (cloned from the repo) or
+    vars.yml (if you use one) that leads to the postgres data:</p>
+{% highlight bash %}
+cat awx/installer/inventory | grep postgres_data
+postgres_data_dir="~/.awx/pgdocker
+
+cat awx/installer/vars.yml | grep postgres_data
+postgres_data_dir: /var/lib/awx/pgdocker
+{% endhighlight %}
+<p>Is it correct? If not you might have also screwed up your upgrade procedure. If you use vars.yml for the
+    installation the setting there takes priority over the inventory file.</p>
+<p>Turned out in /var/lib/awx/pgdocker there are two postgres data locations:</p>
+{% highlight bash %}
+/var/lib/awx/pgdocker$ sudo find . -type f -name postgresql.conf
+./pgdata/postgresql.conf
+./12/data/postgresql.conf
+{% endhighlight %}
+<p>You might just compare the timestamps of those files to figure out which directory contains
+    your database with your data.</p>
+<h3>Migrating the old data</h3>
+<p>
+    I created a dump of the old databse and moved it to the directory of the new container (so that it is accessible
+    from a bash in there). Depending on your container and path setup paths might be different!
+</p>
+{% highlight bash %}
+sudo docker exec -it postgres bash  # old container, old db
+pg_dump -U awx -d awx > /var/lib/postgresql/data/12/data/dump
+# ctrl + d exit container
+{% endhighlight %}
+<p>
+    the dump should now be in the postgres_data_dir on the host.
+    but you can put it anywhere if that doesn't work for you
+    and use <inline>docker mv</inline> to get it into the awx_postgres container.</p>
+<p>In the new container restore that dump (Also see <a>https://www.postgresqltutorial.com/postgresql-rename-database/</a>)<p>
+</p>
+{% highlight bash %}
+sudo docker exec -it awx_postgres bash  # new container, new db
+# preparation and backup
+psql -U awx
+\connect postgres
+SELECT pg_terminate_backend (pid) FROM pg_stat_activity WHERE datname = 'awx'; # closes all db connections
+ALTER DATABASE awx RENAME TO awx_empty;
+CREATE DATABASE awx;
+
+# resteoring the dump
+# ctrl + d exit psql
+psql -U awx -d awx < /var/lib/postgresql/data/dump
+# takes a few minutes
+{% endhighlight %}
+<p>The new container now contains the old data, but in an outdated database format. The migrations need to be
+    executed.</p>
+{% highlight bash %}
+# leave awx_postgres and enter awx_task:
+sudo docker exec -it awx_task bash
+awx-manage migrate
+
+# output:
+Operations to perform:
+ Apply all migrations: auth, conf, contenttypes, main, oauth3_provider, sessions, sites, social_django, sso, taggit
+Running migrations:
+ Applying auth.0009_alter_user_last_name_max_length... OK
+ Applying auth.0010_alter_group_name_max_length... OK
+ Applying auth.0011_update_proxy_permissions... OK
+ Applying conf.0006_v331_ldap_group_type... OK
+...
+{% endhighlight %}
+<p>
+    Since the connections to the db have been closed manually previously, I restart the docker service which restarts
+    AWX.
+</p>
+<code>sudo systemctl restart docker</code>
+<p>
+    I then was able to log in into the new version with my old
+    account.
+</p>

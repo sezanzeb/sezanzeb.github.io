@@ -1,0 +1,31 @@
+---
+layout: post
+excerpt_separator: ""
+title: "Sezanlight"
+date: "2019-07-28 02:00:00 -0000"
+---
+<script src="/assets/hippo/hippo-gallery.js"></script>
+
+<p>
+    Reads your X Window System Linux screen contents and sends it to a remote raspberry that has single-color
+    rgb lights, which are controlled using one PWM gpio pin per R, G and B. Hence it does not need splitte
+    and grabber hardware.
+</p>
+<p>
+    This is the complete hardware setup you will need:
+    <a href='https://dordnung.de/raspberrypi-ledstrip/'>https://dordnung.de/raspberrypi-ledstrip/</a>
+</p>
+<p>
+    It sparsly checks a few places on the screen (250 pixels by default) and puts extra weight on those with high
+    saturation.
+</p>
+<div class='table'>
+    <div class='cell'><img src='assets/images/web.jpg'></div>
+    <div clasS='cellspacer'></div>
+    <div class='cell'><img src='assets/images/web2.jpg'></div>
+    <div clasS='cellspacer'></div>
+    <div class='cell'>
+        <img src='assets/images/photo.jpg'>
+        <img src='assets/images/gtk.png'>
+    </div>
+</div>
