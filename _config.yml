@@ -21,7 +21,7 @@
 title: Sezanzeb
 email: proxima@sezanzeb.de
 description: >- # this means to ignore newlines until "baseurl:"
-  Mostly abandoned website of a developer
+  Mostly an abandoned website of a developer
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://sezanzeb.de" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  sezanzeb
